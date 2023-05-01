@@ -16,5 +16,12 @@ class Matrix{
         Matrix Add(Matrix second);
         Matrix Subtract(Matrix second);
         Matrix Dot(Matrix second);
+        Matrix AddScalar(double scalar);
+        Matrix MultiplyByScalar(double scalar);
         std::string ToString();
+        Matrix operator+(const Matrix& b);
+        Matrix operator+(const double& b);
+        Matrix operator-(const Matrix& b);
+        Matrix operator*(const Matrix& b);
+        Matrix operator*(const double& b);
 };

@@ -68,6 +68,25 @@ Matrix Matrix::Dot(Matrix second){
     return result;
 }
 
+Matrix Matrix::AddScalar(double scalar){
+    Matrix result(rows, columns, matrix);
+    for(int i=0; i<rows; i++){
+        for(int j=0; j<columns; j++){
+            result.Set(i, j, result.Get(i, j)+scalar);
+        }
+    }
+    return result;
+}
+Matrix Matrix::MultiplyByScalar(double scalar){
+    Matrix result(rows, columns, matrix);
+    for(int i=0; i<rows; i++){
+        for(int j=0; j<columns; j++){
+            result.Set(i, j, result.Get(i, j)*scalar);
+        }
+    }
+    return result;
+}
+
 std::string Matrix::ToString(){
     std::string s = "";
     for(int i=0; i<rows; i++){
@@ -78,4 +97,24 @@ std::string Matrix::ToString(){
         s+="\n";
     }
     return s;
+}
+
+Matrix Matrix::operator+(const Matrix& b){
+    return Add(b);
+}
+
+Matrix Matrix::operator+(const double& b){
+    return AddScalar(b);
+}
+
+Matrix Matrix::operator-(const Matrix& b){
+    return Subtract(b);
+}
+
+Matrix Matrix::operator*(const Matrix& b){
+    return Dot(b);
+}
+
+Matrix Matrix::operator*(const double& b){
+    return MultiplyByScalar(b);
 }
