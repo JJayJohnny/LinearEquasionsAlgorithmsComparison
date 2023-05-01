@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include <stdexcept>
 
 Matrix::Matrix(int rows, int columns, std::vector<std::vector<double>> matrix){
     this->rows = rows;
@@ -29,27 +30,41 @@ int Matrix::GetColumns(){
     return this->columns;
 }
 
-Matrix* Matrix::Add(Matrix second){
-    Matrix* result = nullptr;
+Matrix Matrix::Add(Matrix second){
+    Matrix result(rows, columns);
     if(second.GetColumns() != columns || second.GetRows() != rows){
-        return result;
+        throw std::runtime_error("Matrixes are not compatible for addition");
     }
-    result = new Matrix(rows, columns);
     for(int i=0; i<rows; i++)
         for(int j=0; j<columns; j++)
-            result->Set(i, j, Get(i,j) + second.Get(i, j));
+            result.Set(i, j, Get(i,j) + second.Get(i, j));
     return result;
 }
 
-Matrix* Matrix::Substract(Matrix second){
-    Matrix* result = nullptr;
+Matrix Matrix::Subtract(Matrix second){
+    Matrix result(rows, columns);
     if(second.GetColumns() != columns || second.GetRows() != rows){
-        return result;
+        throw std::runtime_error("Matrixes are not compatible for subtraction");
     }
-    result = new Matrix(rows, columns);
     for(int i=0; i<rows; i++)
         for(int j=0; j<columns; j++)
-            result->Set(i, j, matrix[i][j] - second.Get(i, j));
+            result.Set(i, j, matrix[i][j] - second.Get(i, j));
+    return result;
+}
+
+Matrix Matrix::Dot(Matrix second){
+    Matrix result(rows, second.GetColumns());
+    if(columns != second.GetRows())
+        throw std::runtime_error("Matrixes are not compatible for multiplication");
+    for(int i=0; i<rows; i++){
+        for(int j=0; j<second.GetColumns(); j++){
+            double sum = 0;
+            for(int k=0; k<columns; k++){
+                sum+=Get(i, k)*second.Get(k, j);
+            }
+            result.Set(i, j, sum);
+        }
+    }
     return result;
 }
 

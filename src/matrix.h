@@ -13,7 +13,8 @@ class Matrix{
         double Get(int i, int j);
         int GetRows();
         int GetColumns();
-        Matrix* Add(Matrix second);
-        Matrix* Substract(Matrix second);
+        Matrix Add(Matrix second);
+        Matrix Subtract(Matrix second);
+        Matrix Dot(Matrix second);
         std::string ToString();
 };
