@@ -5,7 +5,7 @@
 #include "matrix.h"
 
 #define PLOT_DIR "plots/"
-#define N 10//567 //9*7*9
+#define N 567 //9*7*9
 #define A1 11
 #define A2 -1
 #define A3 -1
@@ -22,8 +22,11 @@ Matrix CalculateJacobi(Matrix& A, Matrix& b, double accuracy, std::vector<int>& 
     r.FillOnes();
     double error = (A*r-b).CalculateNorm();
     int i=0;
+    //these dont change through the algorithm so I preallocated them for speed
+    Matrix rParam = (D*(-1)).InverseDiagonalMatrix() * (L+U);
+    Matrix freeParam = D.InverseDiagonalMatrix()*b;
     while(error > accuracy){
-        r = (D*(-1)).InverseDiagonalMatrix() * (L+U)*r + D.InverseDiagonalMatrix()*b;
+        r = rParam*r + freeParam;
         error = (A*r-b).CalculateNorm();
         i++;
         iterations.push_back(i);
@@ -51,7 +54,7 @@ int main(){
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout<<"Metoda Jacobiego"<<"\n";
     std::cout<<"Liczba iteracji: "<<iterations.size()<<"\n";
-    std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()<<"\n";
+    std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stop-start).count()<<"\n";
     plt::semilogy(iterations, residuum);
     plt::title("Wykres bledu rezydualnego dla algorytmu Jacobiego");
     plt::xlabel("Iteracja");
