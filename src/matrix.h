@@ -9,6 +9,7 @@ class Matrix{
     public:
         Matrix(int rows, int columns, std::vector<std::vector<double>>);
         Matrix(int rows, int columns);
+        Matrix(Matrix& b);
         void Set(int i, int j, double value);
         double Get(int i, int j) const;
         int GetRows() const;
@@ -34,5 +35,6 @@ class Matrix{
         double CalculateNorm();
         void CreateDiagonal(double a1, double a2, double a3);
         Matrix ForwardSubstitution(const Matrix& b);
+        Matrix BackwardSubstitution(const Matrix& b);
         Matrix InverseDiagonalMatrix();
 };

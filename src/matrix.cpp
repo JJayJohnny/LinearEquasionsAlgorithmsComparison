@@ -16,6 +16,12 @@ Matrix::Matrix(int rows, int columns){
         this->matrix[i].resize(columns);
 }
 
+Matrix::Matrix(Matrix& b){
+    this->rows = b.rows;
+    this->columns = b.columns;
+    this->matrix = b.matrix;
+}
+
 void Matrix::Set(int i, int j, double value){
     this->matrix[i][j] = value;
 }
@@ -158,6 +164,21 @@ Matrix Matrix::ForwardSubstitution(const Matrix& b){
             temp -= Get(i, j) * x.Get(j, 0);
         }
         x.Set(i, 0, temp / Get(i, i));
+    }
+    return x;
+}
+
+Matrix Matrix::BackwardSubstitution(const Matrix& b){
+    Matrix x(rows, 1);
+    x.FillZeros();
+    if(rows != b.GetRows())
+        throw std::runtime_error("Matrixes are not compatible for backward substitution");
+    for(int i=rows-1; i>=0; i--){
+        double temp = b.Get(i, 0);
+        for(int j=i+1; j<columns; j++){
+            temp -= Get(i, j) * x.Get(j, 0);
+        }
+        x.Set(i, 0, temp/Get(i,i));
     }
     return x;
 }

@@ -31,6 +31,8 @@ Matrix CalculateJacobi(Matrix& A, Matrix& b, double accuracy, std::vector<double
         i++;
         iterations.push_back(i);
         residuum.push_back(error);
+        if(i >= 1000)
+            break;
     }
     return r;
 }
@@ -52,8 +54,27 @@ Matrix CalculateGauss(Matrix& A, Matrix& b, double accuracy, std::vector<double>
         i++;
         iterations.push_back(i);
         residuum.push_back(error);
+        if(i >= 1000)
+            break;
     }
     return r;
+}
+
+Matrix LUFactorization(Matrix& A, Matrix& b){
+    Matrix U(A);
+    Matrix L(A.GetRows(), A.GetColumns());
+    L.CreateDiagonal(1, 0, 0);
+    for(int k=0; k<A.GetRows()-1; k++){
+        for(int j=k+1; j<A.GetColumns(); j++){
+            L.Set(j, k, U.Get(j, k)/U.Get(k, k));
+            for(int i=k; i<U.GetColumns(); i++){
+                U.Set(j, i, U.Get(j, i)-L.Get(j,k)*U.Get(k, i));
+            }
+        }
+    }
+    Matrix y = L.ForwardSubstitution(b);
+    Matrix x = U.BackwardSubstitution(y);
+    return x;
 }
 
 void Example1(){
@@ -64,6 +85,7 @@ void Example1(){
     for(int i=0; i<N; i++){
         b.Set(i, 0, sin(i*(F+1)));
     }
+    //metoda Jacobiego
     std::vector<double> residuumJacobi;
     std::vector<double> iterationsJacobi;
     auto startJacobi = std::chrono::high_resolution_clock::now();
@@ -86,20 +108,64 @@ void Example1(){
     plt::figure_size(700, 500);
     plt::named_semilogy("Metoda Jacobiego", iterationsJacobi, residuumJacobi);
     plt::named_semilogy("Metoda Gaussa-Seidla", iterationsGauss, residuumGauss);
-    plt::title("Porownanie bledu rezydualnego w kolejnych iteracjach");
+    plt::title("Porownanie bledu rezydualnego w kolejnych iteracjach (zadanie B)");
     plt::xlabel("Iteracja");
     plt::ylabel("Norma bledu rezydualnego");
     plt::legend();
     plt::save("plots/ZadanieBResiduum.png");
 }
 
-int main(){
-    Matrix m(5, 2, {{5.0, 1.0},{-3.0, 3.0},{4.0, -1.0},{-1.0, 2.0},{0.0, 7.0}});
-    Matrix d(2, 7, {{1.0, 7.0, 0.0, -1.0, 9.0, 0.0, 5.0},{2.0, -6.0, -1.0, 10.0, 2.0, -3.0, 1.0}});
-    
+void Example2(){
+    std::cout<<"Zadanie C:"<<"\n";
+    Matrix A(N, N);
+    A.CreateDiagonal(3, A2, A3);
+    Matrix b(N, 1);
+    for(int i=0; i<N; i++){
+        b.Set(i, 0, sin(i*(F+1)));
+    }
+    //metoda Jacobiego
+    std::vector<double> residuumJacobi;
+    std::vector<double> iterationsJacobi;
+    auto startJacobi = std::chrono::high_resolution_clock::now();
+    Matrix rJacobi = CalculateJacobi(A, b, 1e-9, iterationsJacobi, residuumJacobi);
+    auto stopJacobi = std::chrono::high_resolution_clock::now();
+    std::cout<<"-Metoda Jacobiego-"<<"\n";
+    std::cout<<"Liczba iteracji: "<<iterationsJacobi.size()<<"\n";
+    std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopJacobi-startJacobi).count()<<"ms"<<"\n";
+    //metoda Gaussa-Seidla
+    std::vector<double> residuumGauss;
+    std::vector<double> iterationsGauss;
+    auto startGauss = std::chrono::high_resolution_clock::now();
+    Matrix rGauss = CalculateGauss(A, b, 1e-9, iterationsGauss, residuumGauss);
+    auto stopGauss = std::chrono::high_resolution_clock::now();
+    std::cout<<"-Metoda Gaussa-Seidla-"<<"\n";
+    std::cout<<"Liczba iteracji: "<<iterationsGauss.size()<<"\n";
+    std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopGauss-startGauss).count()<<"ms"<<"\n";
+    //generowanie wykresu
+    plt::figure();
+    plt::figure_size(700, 500);
+    plt::named_semilogy("Metoda Jacobiego", iterationsJacobi, residuumJacobi);
+    plt::named_semilogy("Metoda Gaussa-Seidla", iterationsGauss, residuumGauss);
+    plt::title("Porownanie bledu rezydualnego w kolejnych iteracjach (zadanie C)");
+    plt::xlabel("Iteracja");
+    plt::ylabel("Norma bledu rezydualnego");
+    plt::legend();
+    plt::save("plots/ZadanieCResiduum.png");
 
+    auto startLU = std::chrono::high_resolution_clock::now();
+    Matrix xLU = LUFactorization(A, b);
+    auto stopLU = std::chrono::high_resolution_clock::now();
+    std::cout<<"-Metoda Faktoryzacji LU-"<<"\n";
+    std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopLU-startLU).count()<<"ms"<<"\n";
+    std::cout<<"Blad rezydualny: "<<(A*xLU-b).CalculateNorm()<<"\n";
+
+}
+
+int main(){
     //zadanie A i B
     Example1();
+    //zadanie C
+    Example2();
     
     return 0;
 }
