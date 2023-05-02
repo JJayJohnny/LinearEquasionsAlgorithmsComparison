@@ -154,7 +154,7 @@ Matrix Matrix::ForwardSubstitution(const Matrix& b){
         throw std::runtime_error("Matrixes are not compatible for forward substitution");
     for(int i=0; i<rows; i++){
         double temp = b.Get(i, 0);
-        for(int j=0; j<=i; j++){
+        for(int j=0; j<i; j++){
             temp -= Get(i, j) * x.Get(j, 0);
         }
         x.Set(i, 0, temp / Get(i, i));
