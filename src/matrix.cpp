@@ -236,11 +236,3 @@ double Matrix::CalculateNorm(){
         throw std::runtime_error("Only vectors can have norm calculated");
     return sqrt(Transpose().Dot(*this).Get(0, 0));
 }
-
-Matrix Matrix::InverseDiagonalMatrix(){
-    Matrix result(rows, columns, matrix);
-    for(int i=0; i<rows; i++){
-        result.Set(i, i, 1/Get(i, i));
-    }
-    return result;
-}

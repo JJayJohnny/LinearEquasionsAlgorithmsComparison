@@ -5,7 +5,7 @@
 #include "matrix.h"
 
 #define PLOT_DIR "plots/"
-#define N 567 //9*7*9
+#define N 979
 #define A1 11
 #define A2 -1
 #define A3 -1
@@ -22,6 +22,8 @@ Matrix CalculateJacobi(Matrix& A, Matrix& b, double accuracy, std::vector<double
     r.FillOnes();
     double error = (A*r-b).CalculateNorm();
     double i=0;
+    iterations.push_back(i);
+    residuum.push_back(error);
     //these dont change through the algorithm so I preallocated them for speed
     Matrix freeParam = D.ForwardSubstitution(b);
     while(error > accuracy){
@@ -30,8 +32,8 @@ Matrix CalculateJacobi(Matrix& A, Matrix& b, double accuracy, std::vector<double
         i++;
         iterations.push_back(i);
         residuum.push_back(error);
-        if(i >= 1000)
-            break;
+        // if(i >= 1000)
+        //     break;
     }
     return r;
 }
@@ -44,6 +46,8 @@ Matrix CalculateGauss(Matrix& A, Matrix& b, double accuracy, std::vector<double>
     r.FillOnes();
     double error = (A*r-b).CalculateNorm();
     double i=0;
+    iterations.push_back(i);
+    residuum.push_back(error);
     //these dont change through the algorithm so I preallocated them for speed
     Matrix rParam = (D+L)*(-1);
     Matrix freeParam = (D+L).ForwardSubstitution(b);
@@ -53,8 +57,8 @@ Matrix CalculateGauss(Matrix& A, Matrix& b, double accuracy, std::vector<double>
         i++;
         iterations.push_back(i);
         residuum.push_back(error);
-        if(i >= 1000)
-            break;
+        // if(i >= 1000)
+        //     break;
     }
     return r;
 }
@@ -77,7 +81,8 @@ Matrix LUFactorization(Matrix& A, Matrix& b){
 }
 
 void Example1(){
-    std::cout<<"Zadanie B:"<<"\n";
+    std::cout<<"\nZadanie B:"<<"\n";
+    std::cout<<"N="<<N<<"\n";
     Matrix A(N, N);
     A.CreateDiagonal(A1, A2, A3);
     Matrix b(N, 1);
@@ -91,8 +96,9 @@ void Example1(){
     Matrix rJacobi = CalculateJacobi(A, b, 1e-9, iterationsJacobi, residuumJacobi);
     auto stopJacobi = std::chrono::high_resolution_clock::now();
     std::cout<<"-Metoda Jacobiego-"<<"\n";
-    std::cout<<"Liczba iteracji: "<<iterationsJacobi.size()<<"\n";
+    std::cout<<"Liczba iteracji: "<<iterationsJacobi.size()-1<<"\n";
     std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopJacobi-startJacobi).count()<<"ms"<<"\n";
+    std::cout<<"Norma bledu rezydualnego: "<<residuumJacobi[residuumJacobi.size()-1]<<"\n";
     //metoda Gaussa-Seidla
     std::vector<double> residuumGauss;
     std::vector<double> iterationsGauss;
@@ -100,8 +106,9 @@ void Example1(){
     Matrix rGauss = CalculateGauss(A, b, 1e-9, iterationsGauss, residuumGauss);
     auto stopGauss = std::chrono::high_resolution_clock::now();
     std::cout<<"-Metoda Gaussa-Seidla-"<<"\n";
-    std::cout<<"Liczba iteracji: "<<iterationsGauss.size()<<"\n";
+    std::cout<<"Liczba iteracji: "<<iterationsGauss.size()-1<<"\n";
     std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopGauss-startGauss).count()<<"ms"<<"\n";
+    std::cout<<"Norma bledu rezydualnego: "<<residuumGauss[residuumGauss.size()-1]<<"\n";
     //generowanie wykresu
     plt::figure();
     plt::figure_size(700, 500);
@@ -115,7 +122,8 @@ void Example1(){
 }
 
 void Example2(){
-    std::cout<<"Zadanie C:"<<"\n";
+    std::cout<<"\nZadanie C:"<<"\n";
+    std::cout<<"N="<<N<<"\n";
     Matrix A(N, N);
     A.CreateDiagonal(3, A2, A3);
     Matrix b(N, 1);
@@ -129,8 +137,9 @@ void Example2(){
     Matrix rJacobi = CalculateJacobi(A, b, 1e-9, iterationsJacobi, residuumJacobi);
     auto stopJacobi = std::chrono::high_resolution_clock::now();
     std::cout<<"-Metoda Jacobiego-"<<"\n";
-    std::cout<<"Liczba iteracji: "<<iterationsJacobi.size()<<"\n";
+    std::cout<<"Liczba iteracji: "<<iterationsJacobi.size()-1<<"\n";
     std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopJacobi-startJacobi).count()<<"ms"<<"\n";
+    std::cout<<"Norma bledu rezydualnego: "<<residuumJacobi[residuumJacobi.size()-1]<<"\n";
     //metoda Gaussa-Seidla
     std::vector<double> residuumGauss;
     std::vector<double> iterationsGauss;
@@ -138,8 +147,9 @@ void Example2(){
     Matrix rGauss = CalculateGauss(A, b, 1e-9, iterationsGauss, residuumGauss);
     auto stopGauss = std::chrono::high_resolution_clock::now();
     std::cout<<"-Metoda Gaussa-Seidla-"<<"\n";
-    std::cout<<"Liczba iteracji: "<<iterationsGauss.size()<<"\n";
+    std::cout<<"Liczba iteracji: "<<iterationsGauss.size()-1<<"\n";
     std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopGauss-startGauss).count()<<"ms"<<"\n";
+    std::cout<<"Norma bledu rezydualnego: "<<residuumGauss[residuumGauss.size()-1]<<"\n";
     //generowanie wykresu
     plt::figure();
     plt::figure_size(700, 500);
@@ -151,22 +161,28 @@ void Example2(){
     plt::legend();
     plt::save("plots/ZadanieCResiduum.png");
 
+    std::cout<<"\nZadanie D:"<<"\n";
+    std::cout<<"N="<<N<<"\n";
     auto startLU = std::chrono::high_resolution_clock::now();
     Matrix xLU = LUFactorization(A, b);
     auto stopLU = std::chrono::high_resolution_clock::now();
     std::cout<<"-Metoda Faktoryzacji LU-"<<"\n";
     std::cout<<"Czas wykonania: "<<std::chrono::duration_cast<std::chrono::milliseconds>(stopLU-startLU).count()<<"ms"<<"\n";
-    std::cout<<"Blad rezydualny: "<<(A*xLU-b).CalculateNorm()<<"\n";
+    std::cout<<"Norma bledu rezydualnego: "<<(A*xLU-b).CalculateNorm()<<"\n";
 
 }
 
 void Example3(){
+    std::cout<<"\nZadanie E:"<<"\n";
     std::vector<double> ns = {100, 500, 1000, 2000, 3000};
     std::vector<double> timesJacobi;
     std::vector<double> timesGauss;
     std::vector<double> timesLU;
     std::vector<double> iterationsJacobi;
     std::vector<double> iterationsGauss;
+    std::vector<double> rJacobi;
+    std::vector<double> rGauss;
+    std::vector<double> rLU;
 
     double epsilon = 1e-9;
     for(double n : ns){
@@ -183,8 +199,9 @@ void Example3(){
         auto stopJacobi = std::chrono::high_resolution_clock::now();
         double timeJacobi = std::chrono::duration_cast<std::chrono::milliseconds>(stopJacobi-startJacobi).count();
         timesJacobi.push_back(timeJacobi);
-        iterationsJacobi.push_back(iJacobi.size());
-        std::cout<<"Metoda Jacobiego N: "<<n<<" czas: "<<timeJacobi<<"ms iteracje: "<<iJacobi.size()<<"\n";
+        iterationsJacobi.push_back(iJacobi.size()-1);
+        rJacobi.push_back(residuumJacobi[residuumJacobi.size()-1]);
+        std::cout<<"Metoda Jacobiego N: "<<n<<" czas: "<<timeJacobi<<"ms iteracje: "<<iJacobi.size()-1<<"\n";
 
         std::vector<double> iGauss;
         std::vector<double> residuumGauss;
@@ -193,16 +210,18 @@ void Example3(){
         auto stopGauss = std::chrono::high_resolution_clock::now();
         double timeGauss = std::chrono::duration_cast<std::chrono::milliseconds>(stopGauss-startGauss).count();
         timesGauss.push_back(timeGauss);
-        iterationsGauss.push_back(iGauss.size());
-        std::cout<<"Metoda Gaussa N: "<<n<<" czas: "<<timeGauss<<"ms iteracje: "<<iGauss.size()<<"\n";
+        iterationsGauss.push_back(iGauss.size()-1);
+        rGauss.push_back(residuumGauss[residuumGauss.size()-1]);
+        std::cout<<"Metoda Gaussa N: "<<n<<" czas: "<<timeGauss<<"ms iteracje: "<<iGauss.size()-1<<"\n";
 
-        // auto startLU = std::chrono::high_resolution_clock::now();
-        // Matrix xLU = LUFactorization(A, b);
-        // auto stopLU = std::chrono::high_resolution_clock::now();
-        // double timeLU = std::chrono::duration_cast<std::chrono::milliseconds>(stopLU-startLU).count();
-        // timesLU.push_back(timeLU);
-        // std::cout<<"Faktoryzacja LU N: "<<n<<" czas: "<<timeLU<<"\n";
-        // std::cout<<"\n";
+        auto startLU = std::chrono::high_resolution_clock::now();
+        Matrix xLU = LUFactorization(A, b);
+        auto stopLU = std::chrono::high_resolution_clock::now();
+        double timeLU = std::chrono::duration_cast<std::chrono::milliseconds>(stopLU-startLU).count();
+        timesLU.push_back(timeLU);
+        rLU.push_back((A*xLU-b).CalculateNorm());
+        std::cout<<"Faktoryzacja LU N: "<<n<<" czas: "<<timeLU<<"ms\n";
+        std::cout<<"\n";
     }
 
     plt::figure();
@@ -215,19 +234,29 @@ void Example3(){
     plt::legend();
     plt::save("plots/ZadanieECzasy.png");
 
-    // plt::named_plot("Faktoryzacja LU", ns, timesLU);
-    // plt::title("Porównanie metod iteracyjnych z bespośrednią faktoryzacją LU");
-    // plt::legend();
-    // plt::save("plots/ZadanieECzasy2.png");
+    plt::named_plot("Faktoryzacja LU", ns, timesLU);
+    plt::title("Porównanie metod iteracyjnych z bespośrednią faktoryzacją LU");
+    plt::legend();
+    plt::save("plots/ZadanieECzasy2.png");
 
     plt::figure();
     plt::named_plot("Metoda Jacobiego",ns, iterationsJacobi);
     plt::named_plot("Metoda Gaussa-Seidla",ns, iterationsGauss); 
-    plt::title("Ilosc iteracji w zależnosci od liczby niewiadomych");
+    plt::title("Ilość iteracji w zależności od liczby niewiadomych");
     plt::xlabel("Liczba niewiadomych");
-    plt::ylabel("Ilosc iteracji");
+    plt::ylabel("Ilość iteracji");
     plt::legend();
-    plt::save("plots/ZadanieEIteracje.png");  
+    plt::save("plots/ZadanieEIteracje.png");
+
+    plt::figure();
+    plt::named_semilogy("Metoda Jacobiego", ns, rJacobi);
+    plt::named_semilogy("Metoda Gaussa-Seidla", ns, rGauss);
+    plt::named_semilogy("Faktoryzacja LU", ns, rLU);
+    plt::title("Norma błędu rezydualnego w zależności od liczby niewiadomych");
+    plt::xlabel("Liczba niewiadomych");
+    plt::ylabel("Norma residuum");
+    plt::legend();
+    plt::save("plots/ZadanieEResiduum");
 }
 
 int main(){

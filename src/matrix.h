@@ -36,5 +36,4 @@ class Matrix{
         void CreateDiagonal(double a1, double a2, double a3);
         Matrix ForwardSubstitution(const Matrix& b);
         Matrix BackwardSubstitution(const Matrix& b);
-        Matrix InverseDiagonalMatrix();
 };
