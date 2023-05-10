@@ -201,7 +201,7 @@ void Example3(){
         timesJacobi.push_back(timeJacobi);
         iterationsJacobi.push_back(iJacobi.size()-1);
         rJacobi.push_back(residuumJacobi[residuumJacobi.size()-1]);
-        std::cout<<"Metoda Jacobiego N: "<<n<<" czas: "<<timeJacobi<<"ms iteracje: "<<iJacobi.size()-1<<"\n";
+        std::cout<<"Metoda Jacobiego N: "<<n<<" czas: "<<timeJacobi<<"ms iteracje: "<<iJacobi.size()-1<<" norma: "<<residuumJacobi.back()<<"\n";
 
         std::vector<double> iGauss;
         std::vector<double> residuumGauss;
@@ -212,7 +212,7 @@ void Example3(){
         timesGauss.push_back(timeGauss);
         iterationsGauss.push_back(iGauss.size()-1);
         rGauss.push_back(residuumGauss[residuumGauss.size()-1]);
-        std::cout<<"Metoda Gaussa N: "<<n<<" czas: "<<timeGauss<<"ms iteracje: "<<iGauss.size()-1<<"\n";
+        std::cout<<"Metoda Gaussa N: "<<n<<" czas: "<<timeGauss<<"ms iteracje: "<<iGauss.size()-1<<" norma: "<<residuumGauss.back()<<"\n";
 
         auto startLU = std::chrono::high_resolution_clock::now();
         Matrix xLU = LUFactorization(A, b);
@@ -220,7 +220,7 @@ void Example3(){
         double timeLU = std::chrono::duration_cast<std::chrono::milliseconds>(stopLU-startLU).count();
         timesLU.push_back(timeLU);
         rLU.push_back((A*xLU-b).CalculateNorm());
-        std::cout<<"Faktoryzacja LU N: "<<n<<" czas: "<<timeLU<<"ms\n";
+        std::cout<<"Faktoryzacja LU N: "<<n<<" czas: "<<timeLU<<"ms norma: "<<rLU.back()<<"\n";
         std::cout<<"\n";
     }
 
@@ -235,7 +235,7 @@ void Example3(){
     plt::save("plots/ZadanieECzasy.png");
 
     plt::named_plot("Faktoryzacja LU", ns, timesLU);
-    plt::title("Porównanie metod iteracyjnych z bespośrednią faktoryzacją LU");
+    plt::title("Porównanie metod iteracyjnych z bezpośrednią faktoryzacją LU");
     plt::legend();
     plt::save("plots/ZadanieECzasy2.png");
 
@@ -261,9 +261,9 @@ void Example3(){
 
 int main(){
     //zadanie A i B
-    //Example1();
+    Example1();
     //zadanie C i D
-    //Example2();
+    Example2();
     //zadanie E
     Example3();
     
